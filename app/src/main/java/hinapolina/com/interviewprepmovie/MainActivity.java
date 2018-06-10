@@ -8,20 +8,26 @@ import android.support.v7.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity   {
     List<Movie> list=new ArrayList<>();
     MovieAdapter adapter;
     int page  = 1;
     @BindView(R.id.rvMovie) RecyclerView rv;
+    @Inject
+    Retrofit retrofit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((App) getApplication()).getNetComponent().inject(this);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         LinearLayoutManager manager = new LinearLayoutManager(this);
@@ -40,7 +46,9 @@ public class MainActivity extends AppCompatActivity   {
     }
 
     private void loadMovies(int page) {
-        Call<Response> responseCall = Network.getService().moviesList(page);
+
+        Call<Response> responseCall = retrofit.create(ApiEndpointInterface.class).moviesList(page);
+
         responseCall.enqueue(new Callback<Response>() {
             @Override
             public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
